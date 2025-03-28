@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Secure One-Time Telegram Link</title>
+
+    <script>
+        // 🔹 Page reload hote hi data clear ho jaye
+
+        window.onload = function() {
+
+            setTimeout(function() {
+
+                location.reload();
+
+            }, 30000); // 30 seconds me page auto reload hoga
+
+        };
+
+        function generateLink() {
+
+            let tgLink = document.getElementById("tgLink").value;
+
+            let password = document.getElementById("password").value;
+
+            if (!tgLink || !password) {
+
+                alert("Please enter all details.");
+
+                return;
+
+            }
+
+            let accessCode = Math.random().toString(36).substring(2, 10);
+
+            let encryptedLink = btoa(tgLink);
+
+            let encryptedPassword = btoa(password);
+
+            sessionStorage.setItem(accessCode, JSON.stringify({
+                link: encryptedLink,
+                password: encryptedPassword
+            }));
+
+            document.getElementById("generatedLink").innerHTML = `Share this link: <b>${window.location.href}?code=${accessCode}</b>`;
+
+        }
+
+        function accessLink() {
+
+            let urlParams = new URLSearchParams(window.location.search);
+
+            let accessCode = urlParams.get("code") || document.getElementById("accessCode").value;
+
+            let inputPassword = btoa(document.getElementById("accessPassword").value);
+
+            if (!accessCode || !inputPassword) {
+
+                alert("Enter access code and password.");
+
+                return;
+
+            }
+
+            let storedData = sessionStorage.getItem(accessCode);
+
+            if (!storedData) {
+
+                document.getElementById("result").innerHTML = "Invalid or Expired Link!";
+
+                return;
+
+            }
+
+            let data = JSON.parse(storedData);
+
+            if (data.password !== inputPassword) {
+
+                document.getElementById("result").innerHTML = "Incorrect Password!";
+
+                return;
+
+            }
+
+            let tgLink = atob(data.link);
+
+            sessionStorage.removeItem(accessCode);
+
+            document.getElementById("result").innerHTML = `<a href="${tgLink}" target="_blank">Join Telegram</a>`;
+
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <h2>Generate Secure One-Time Telegram Link</h2>
+
+    <label>Telegram Join Link:</label>
+
+    <input type="text" id="tgLink" required><br><br>
+
+
+
+    <label>Set Password:</label>
+
+    <input type="password" id="password" required><br><br>
+
+    <button onclick="generateLink()">Generate Link</button>
+
+    <p id="generatedLink"></p>
+
+    <h2>Access Secure Link</h2>
+
+    <label>Enter Access Code:</label>
+
+    <input type="text" id="accessCode" required><br><br>
+
+    <label>Password:</label>
+
+    <input type="password" id="accessPassword" required><br><br>
+
+    <button onclick="accessLink()">Access Link</button>
+
+    <p id="result"></p>
+
+</body>
+
+</html>
